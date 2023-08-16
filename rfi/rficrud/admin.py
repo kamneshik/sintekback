@@ -7,6 +7,7 @@ from .models import Construction, Project, QualityPlanNumber, Akkuyu, \
     create_copies_of_selected_rfis, Inspector, PtoEngineer, DefaultSignersbyConstruction
 from django import forms
 from rangefilter.filters import DateRangeFilter
+from django.contrib.admin import SimpleListFilter
 
 admin.site.register(Construction)
 admin.site.register(PtoEngineer)
@@ -55,6 +56,23 @@ admin.site.register(DefaultSignersbyConstruction)
 #         return form
 
 
+class ProjectListFilter(SimpleListFilter):
+    title = 'Project filter'
+    parameter_name = 'project'
+
+    def lookups(self, request, model_admin):
+        projects = set([b.project_name for b in model_admin.model.objects.all()])
+
+        sorted_projects = sorted(projects)
+        return [(a.name) for a in sorted_projects]
+
+    # def queryset(self, request, queryset):
+    #     if self.value():
+    #         return queryset.filter()
+    #     else:
+    #         return  queryset
+
+
 class RFIAdmin(admin.ModelAdmin):
     """Фильтрация для Строительный объект-Проба"""
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -80,9 +98,9 @@ class RFIAdmin(admin.ModelAdmin):
         messages.success(request, "Копии успешно созданы")
 
     list_filter = (('date_of_inspection', DateRangeFilter),
-                   'object_name',
-                   'project_name',
-                   'status', 'inspector',
+                    'object_name',
+                    'project_name',
+                    'status', 'inspector',
                    )
 
     list_display = ('excel_number', 'status',

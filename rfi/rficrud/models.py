@@ -109,7 +109,7 @@ class Project(models.Model):
         db_table = 'project_table'
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
-
+        ordering = ['object_name', 'project_name']
 
 class Akkuyu(models.Model):
     """Представитель заказчика для подписания ЗНО"""
