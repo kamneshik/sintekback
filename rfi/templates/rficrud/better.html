@@ -1,0 +1,161 @@
+<!-- This is your HTML file -->
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Add your CSS and JS file links here -->
+  <!-- Bootstrap 4.6.0 CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!-- Moment.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+  <!-- For example, you might add Vue.js and Axios like this: -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+</head>
+<body>
+  <!-- The Vue.js app will be attached to this div -->
+  <div id="app">
+    <div class="container">
+      <h1>RFI List</h1>
+
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <label for="status-filter">Status:</label>
+          <select id="status-filter" class="form-control" v-model="selectedStatus">
+            <option value="">All</option>
+            <option v-for="status in uniqueStatuses" :key="status" :value="status">{{ status }}</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label for="object-filter">Object:</label>
+          <select id="object-filter" class="form-control" v-model="selectedObject">
+            <option value="">All</option>
+            <option v-for="object in uniqueObjects" :key="object" :value="object">{{ object }}</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label for="project-filter">Project:</label>
+          <select id="project-filter" class="form-control" v-model="selectedProject">
+            <option value="">All</option>
+            <option v-for="project in uniqueProjects" :key="project" :value="project">{{ project }}</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label for="search-input">Description:</label>
+          <input id="search-input" type="text" class="form-control" v-model="searchText" placeholder="Search by description">
+        </div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Excel Number</th>
+            <th scope="col">Status</th>
+            <th scope="col">Object Name</th>
+            <th scope="col">Project Name</th>
+            <th scope="col">Date</th>
+            <th scope="col">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="rfi in filteredRFIs" :key="rfi.id">
+            <td>{{ rfi.excel_number }}</td>
+            <td>{{ rfi.status }}</td>
+            <td>{{ rfi.object_name }}</td>
+            <td>{{ rfi.project_name }}</td>
+            <td>{{ formatDate(rfi.date_of_inspection) }}</td>
+            <td>
+              <button class="btn btn-primary" @click="showDetails(row.item)">Details</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <b-modal v-if="selectedRFI" v-model="showDetailsModal">
+        <template v-slot:modal-title>
+          RFI Details
+        </template>
+        <template v-slot:default>
+          <!-- Display the details of the selected RFI here -->
+          <p><strong>Excel Number:</strong> {{ selectedRFI.excel_number }}</p>
+          <p><strong>Status:</strong> {{ selectedRFI.status }}</p>
+          <p><strong>Object Name:</strong> {{ selectedRFI.object_name }}</p>
+          <p><strong>Project Name:</strong> {{ selectedRFI.project_name }}</p>
+          <p><strong>Date:</strong> {{ selectedRFI.date }}</p>
+          <p><strong>Description:</strong> {{ selectedRFI.description }}</p>
+        </template>
+      </b-modal>
+  </div>
+  </div>
+
+  <!-- Your Vue.js application code goes here -->
+  <script>
+  new Vue({
+    el: '#app',
+    data: {
+      rfis: [],
+      selectedStatus: '',
+      selectedObject: '',
+      selectedProject: '',
+      selectedRFI: null,
+      showDetailsModal: false,
+      searchText: ''
+    },
+    computed: {
+      filteredRFIs() {
+        let rfis = this.rfis;
+
+        // Filter by status
+        if (this.selectedStatus) {
+          rfis = rfis.filter(rfi => rfi.status === this.selectedStatus);
+        }
+
+        // Filter by object
+        if (this.selectedObject) {
+          rfis = rfis.filter(rfi => rfi.object_name === this.selectedObject);
+        }
+
+        // Filter by project
+        if (this.selectedProject) {
+          rfis = rfis.filter(rfi => rfi.project_name === this.selectedProject);
+        }
+
+        // Filter by description
+        if (this.searchText) {
+          rfis = rfis.filter(rfi => rfi.description_of_work_russian.includes(this.searchText));
+        }
+
+        return rfis;
+      },
+      uniqueStatuses() {
+        return Array.from(new Set(this.rfis.map(rfi => rfi.status)));
+      },
+      uniqueObjects() {
+        return Array.from(new Set(this.rfis.map(rfi => rfi.object_name)));
+      },
+      uniqueProjects() {
+        return Array.from(new Set(this.rfis.map(rfi => rfi.project_name)));
+      }
+    },methods: {
+      formatDate(date) {
+        return moment(date).format('DD-MM-YYYY');
+      },
+      showDetails(rfi) {
+          this.selectedRFI = rfi;
+          this.showDetailsModal = true;
+        },
+        closeDetailsModal() {
+          this.selectedRFI = null;
+        },
+    },
+    created() {
+      axios.get('http://localhost:8000/api/rfis/?format=json')
+        .then(response => {
+          this.rfis = response.data;
+        });
+    }
+  });
+  </script>
+</body>
+</html>

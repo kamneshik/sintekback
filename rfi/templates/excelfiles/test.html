@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Get RFIs</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#get-rfis-button').click(function() {
+                $.getJSON('/get-rfis/', function(data) {
+                    // `data` содержит JSON-ответ от сервера
+                    // Вы можете перебрать список RFIs и отобразить их на своей странице
+                    $.each(data, function(index, rfi) {
+                        // `rfi` - это словарь, который содержит данные RFI
+                        // Вы можете получить доступ к данным, используя ключи в словаре, например, rfi.id, rfi.excel_number, и т.д.
+                        // Используйте jQuery для обновления вашего HTML для отображения данных RFI по желанию
+                        $('#rfi-list').append('<li>RFI ' + rfi.id + ': ' + rfi.excel_number + '</li>');
+                    });
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <button id="get-rfis-button">Get RFIs</button>
+    <ul id="rfi-list"></ul>
+</body>
+</html>

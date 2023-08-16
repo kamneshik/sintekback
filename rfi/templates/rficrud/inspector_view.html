@@ -1,0 +1,96 @@
+{% extends 'rficrud/base.html' %}
+
+{% load static %}
+{% load rfi_templatetags %}
+
+{% block custom_css %}
+<link rel="stylesheet" href="{% static 'rficrud/css/rfi_list.css' %}">
+{% endblock %}
+
+
+{% block title %}
+Ведомость
+{% endblock %}
+
+{% block table %}
+<div class="row" style="padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0;">
+<div class="container table-container">
+
+    <form method="POST" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+    </form>
+    <button id="toggleFormButton" class="btn btn-secondary">Показать/Скрыть фильтры</button>
+    <div class="form-container hidden" id="filterForm">
+        <form method="GET">
+            {{ filter_form.as_p }}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary mt-4">Фильтр</button>
+            </div>
+        </form>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Excel Number</th>
+                <th class="status-column"> Status </th>
+                <th>RFI Number</th>
+               <!-- <th>Date of Create</th> -->
+                <th>Date of Inspection</th>
+                <th>Object Name</th>
+                <th>Project Name</th>
+                <th>Description of Work (Russian)</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for rfi in rfis %}
+
+            <tr id="rfi-row-{{ rfi.id }}" class="{% if rfi.status == 'rejected' %}table-danger{% elif rfi.status == 'accepted' %}table-success{% elif rfi.status == 'in process' %}table-warning{% elif rfi.status == 'canceled' %}table-secondary{% endif %}">
+                {% if rfi.slug %}
+                    <td><a href="{% url 'rficrud:single_rfi_read' rfi.slug %}">{{ rfi.excel_number }}</a></td>
+                {% else %}
+                    <td>{{ rfi.excel_number }}</td>
+                {% endif %}
+               <!-- <td class="status-column"> {% if rfi.status != 'rejected'%} {{ rfi.get_status_display }} {% else %} {{ rfi.object_name }} {% endif %}</td> -->
+                <td class="status-column">
+                    {% if request.user|is_in_group:"Inspectors" %}
+                        <label for="status-select-{{ rfi.id }}">Status</label>
+                        <select id="status-select-{{ rfi.id }}" class="status-dropdown" data-rfi-id="{{ rfi.id }}" style="width: fit-content;">
+                            <option value="wating for status" {% if rfi.status == 'waiting for status' %}selected{% endif %}>Жду</option>
+                            <option value="in process" {% if rfi.status == 'in process' %}selected{% endif %}>В работе</option>
+                            <option value="accepted" {% if rfi.status == 'accepted' %}selected{% endif %}>Accepted</option>
+                            <option value="rejected" {% if rfi.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                            <option value="canceled" {% if rfi.status == 'canceled' %}selected{% endif %}>Canceled</option>
+                        </select>
+                    {% else %}
+                        <span class="status-text">{{ rfi.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ rfi.rfi_number }}</td>
+                <!-- <td>{{ rfi.date_of_create|date:"d-m-Y" }}</td> -->
+                <td>{{ rfi.date_of_inspection|date:"d-m-Y" }}</td>
+                <td>{{ rfi.object_name }}</td>
+                <td>{{ rfi.project_name }}</td>
+                <td>{{ rfi.description_of_work_russian }}</td>
+
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">No RFI records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    <script>const updateUrlTemplate = "{% url 'rficrud:update_rfi_status' 0 'placeholder' %}";</script>
+    <script src="{% static 'rficrud/js/rfi_list_for_inspector.js' %}" ></script>
+
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+{% endblock %}

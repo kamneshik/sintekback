@@ -1,0 +1,30 @@
+    body {
+      font-family: Roboto, sans-serif;
+      background-color: #fff;
+    }
+    header {
+      background-color: #000;
+      color: #fff;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2em;
+      font-weight: 300;
+    }
+    main {
+      padding: 20px;
+    }
+    section {
+      border-bottom: 1px solid #ccc;
+    }
+    h2 {
+      font-size: 1.5em;
+      font-weight: 400;
+    }
+    p {
+      margin-bottom: 10px;
+    }
+    footer {
+      padding: 20px;
+      text-align: center;
+    }

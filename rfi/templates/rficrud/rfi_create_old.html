@@ -1,0 +1,199 @@
+{% extends 'rficrud/base.html' %}
+{% load static %}
+
+{% include autocomplete_static %}
+{% block custom_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{ form.media.css }}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+<style>
+  .form-section {
+    margin-bottom: 20px;
+  }
+
+  .form-section .form-group {
+    margin-bottom: 10px;
+  }
+
+  .form-section .form-group label {
+    font-weight: bold;
+  }
+
+  .form-section .form-group .form-control {
+    width: 100%;
+  }
+
+  .form-section .form-group .form-check-label {
+    margin-left: 5px;
+  }
+
+  .form-section .form-group.description-group textarea {
+    height: 120px;
+    resize: none;
+    }
+  .error-message {
+    color: red;
+  }
+
+</style>
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-12">
+        <h2 class="text-center">Create RFI</h2>
+        {{ form.media.js }}
+<form method="post">
+  {% csrf_token %}
+  {{ form.media.js }}
+  {% if form.errors %}
+    <div class="error-message">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <p>{{ field.label }}: {{ field.errors|join:", " }}</p>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="form-section">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.object_name.id_for_label }}">{{ form.object_name.label_tag }}</label>
+          {{ form.object_name }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.date_of_inspection.id_for_label }}">{{form.date_of_inspection.label }}</label>
+          {{ form.date_of_inspection }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.project_name.id_for_label }}">{{ form.project_name.label }}</label>
+          {{ form.project_name }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group description-group">
+          <label for="{{ form.description_of_work_russian.id_for_label }}">{{ form.description_of_work_russian.label }}</label>
+          {{ form.description_of_work_russian }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.axes.id_for_label }}">{{ form.axes.label }}</label>
+          {{ form.axes }}
+        </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.from_elevation.id_for_label }}">{{ form.from_elevation.label }}</label>
+                {{ form.from_elevation }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.to_elevation.id_for_label }}">{{ form.to_elevation.label }}</label>
+                {{ form.to_elevation }}
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+
+    <div class="row">
+
+      <div class="col-md-3">
+        <div class="form-group form-check">
+          <input type="checkbox" class="form-check-input" id="{{ form.executive_scheme.id_for_label }}" name="{{ form.executive_scheme.name }}">
+          <label class="form-check-label" for="{{ form.executive_scheme.id_for_label }}">{{ form.executive_scheme.label }}</label>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group form-check">
+          <input type="checkbox" class="form-check-input" id="{{ form.beton_work.id_for_label }}" name="{{ form.beton_work.name }}">
+          <label class="form-check-label" for="{{ form.beton_work.id_for_label }}">{{ form.beton_work.label }}</label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.pk_points.id_for_label }}">{{ form.pk_points.label }}</label>
+          {{ form.pk_points }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.akkuyu_signer.id_for_label }}">{{ form.akkuyu_signer.label }}</label>
+          {{ form.akkuyu_signer }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.independent_control.id_for_label }}">{{ form.independent_control.label }}</label>
+          {{ form.independent_control }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.qc_signer.id_for_label }}">{{ form.qc_signer.label }}</label>
+          {{ form.qc_signer }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.design_supervision_signer.id_for_label }}">{{ form.design_supervision.label }}</label>
+          {{ form.design_supervision_signer }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.contractor.id_for_label }}">{{ form.contractor.label }}</label>
+          {{ form.contractor }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+{% block custom_js %}
+{{ block.super }}
+{% bootstrap_javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="{% static 'rficrud/js/rfi_create.js' %}"></script>
+
+{% endblock %}

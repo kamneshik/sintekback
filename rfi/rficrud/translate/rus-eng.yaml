@@ -1,0 +1,15 @@
+model:
+  name: transformer
+  src_vocab: path/to/source_vocab.txt
+  tgt_vocab: path/to/target_vocab.txt
+
+train:
+  data: path/to/train_data.txt
+  save_model: path/to/save_model.pt
+  log_file: path/to/train_log.txt
+  batch_size: 32
+  num_steps: 50000
+
+valid:
+  data: path/to/valid_data.txt
+  batch_size: 16

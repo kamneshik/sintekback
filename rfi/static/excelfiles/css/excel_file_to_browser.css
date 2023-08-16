@@ -1,0 +1,34 @@
+<style>
+  body {
+    font-family: "Arial", sans-serif;
+  }
+
+  .table {
+    margin-top: 20px;
+    border-collapse: separate;
+    border-spacing: 0 0.5em;
+  }
+
+  .table thead tr th {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  .table tbody tr td {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  .table tbody tr:nth-child(even) td {
+    background-color: #e9ecef;
+  }
+
+  .table tbody tr:hover td {
+    background-color: #dfe3e6;
+    cursor: pointer;
+  }
+</style>

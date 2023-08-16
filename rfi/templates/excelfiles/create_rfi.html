@@ -1,0 +1,58 @@
+{% extends 'excelfiles/base.html' %}
+{% load static %}
+
+{% block custom_css %}
+    <link rel="stylesheet" href="{% static 'excelfiles/css/create_rfi.css' %}">
+{% endblock %}
+
+{% block content %}
+  <h1>Create RFI</h1>
+<form method="post">
+  {% csrf_token %}
+
+  <div>
+    <label for="object">Object:</label>
+    <select id="object" name="object">
+      <!-- Render the object options here -->
+    </select>
+  </div>
+
+  <div>
+    <label for="project">Project:</label>
+    <select id="project" name="project">
+      <!-- Render the project options here -->
+    </select>
+  </div>
+
+  <div>
+    <label for="inspection_date">Date and Time of Inspection:</label>
+    <input type="datetime-local" id="inspection_date" name="inspection_date">
+  </div>
+
+  <div>
+    <label for="points">Points from PK:</label>
+    <select id="points" name="points">
+      <!-- Render the points options here -->
+    </select>
+  </div>
+
+  <div>
+    <label for="type_of_works">Type of Works:</label>
+    <input type="text" id="type_of_works" name="type_of_works">
+  </div>
+
+  <div>
+    <label for="description">Description of Work:</label>
+    <textarea id="description" name="description"></textarea>
+  </div>
+
+  <!-- Render the signer fields here -->
+
+  <button type="submit">Create</button>
+</form>
+
+{% endblock %}
+
+{% block custom_js %}
+  <script src="{% static '/excelfiles/js/create_rfi.js' %}"></script>
+{% endblock %}

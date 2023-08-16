@@ -1,0 +1,46 @@
+{% extends 'excelfiles/base.html' %}
+{% load static %}
+
+{% block custom_css %}
+	<link rel="stylesheet" href="{% static 'rficrud/css/index.css' %}">
+{% endblock %}
+	{% block title %}RFI Table{% endblock %}
+
+{% block table %}
+	<h1>RFI Table</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Excel Number</th>
+				<th>Status</th>
+				<th>RFI Number</th>
+				<th>Date of Create</th>
+				<th>Date of Inspection</th>
+				<th>Object</th>
+
+				<th>Project</th>
+				<th>Description of Work</th>
+
+
+			</tr>
+		</thead>
+		<tbody>
+			<!-- iterate through the RFI data and create a row for each RFI -->
+			{% for rfi in rfi_data %}
+			<tr>
+				<td>{{ rfi.excel_number }}</td>
+				<td>{{ rfi.get_status_display }}</td>
+				<td>ЗНО-{{ rfi.rfi_number_from_akkuyu }}</td>
+				<td>{{ rfi.date_of_create }}</td>
+				<td>{{ rfi.date_of_inspection }}</td>
+				<td>{{ rfi.object_name }}</td>
+
+				<td> {{ rfi.project_name }}</td>
+				<td>{{ rfi.description_of_work_russian }}</td>
+
+
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}

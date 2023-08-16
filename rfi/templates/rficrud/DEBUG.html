@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RFI List</title>
+
+  <!-- Bootstrap 4.6.0 CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!-- BootstrapVue CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.css" rel="stylesheet">
+
+  <!-- Select2 CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+  <!-- Vue.js -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+
+  <!-- BootstrapVue -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <b-card>
+        <b-row>
+          <b-col md="3" class="mb-2">
+            <b-form-select v-model="selectedStatus" :options="statusOptions"  prepend-tokens></b-form-select>
+          </b-col>
+          <b-col md="3" class="mb-2">
+            <b-form-select v-model="selectedObject" :options="objectOptions" @change="fetchProjects" prepend-tokens></b-form-select>
+          </b-col>
+          <b-col md="3" class="mb-2">
+            <b-form-select v-model="selectedProject" :options="projectOptions" prepend-tokens></b-form-select>
+          </b-col>
+          <b-col md="3" class="mb-2">
+            <b-form-input v-model="filterDescription" placeholder="Description..."></b-form-input>
+          </b-col>
+          <b-col md="3" class="mb-2">
+            <b-form-datepicker
+              v-model="filterFromDate"
+              placeholder="From Date"
+              today-button
+              clear-button
+            ></b-form-datepicker>
+          </b-col>
+          <b-col md="3" class="mb-2">
+            <b-form-datepicker
+              v-model="filterToDate"
+              placeholder="To Date"
+              today-button
+              clear-button
+            ></b-form-datepicker>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col md="6" class="mb-2">
+            <b-button variant="primary" @click="clearFilter">Clear Filter</b-button>
+          </b-col>
+          <b-col md="6" class="mb-2">
+            <b-button variant="primary" @click="clearDateFilters">Clear Date Filters</b-button>
+          </b-col>
+        </b-row>
+      </b-card>
+
+      <b-card class="mt-6">
+        <b-table
+          :items="filteredRFIs"
+          :fields="fields"
+          :tbody-tr-class='rowClass'
+          :per-page="perPage"
+          :current-page="currentPage"
+          :filter="filter"
+          :filter-included-fields="filterFields"
+          :sort-by.sync="sortBy"
+          :sort-desc.sync="sortDesc"
+          :sort-direction="sortDirection"
+          selectable
+          responsive
+          hover
+          sort-icon-left
+
+          striped
+          outlined
+
+        >
+          <template #cell(excel_number)="row">
+            <a href="#">{{ row.item.excel_number }}</a>
+
+          </template>
+                <template #cell(selected)="{ rowSelected }">
+                <template v-if="rowSelected">
+                  <span aria-hidden="true">&check;</span>
+                  <span class="sr-only">Selected</span>
+                </template>
+                <template v-else>
+                  <span aria-hidden="true">&nbsp;</span>
+                  <span class="sr-only">Not selected</span>
+                </template>
+              </template>
+
+          <template #cell(actions)="row">
+            <b-button variant="info" @click="showDetails(row.item)">Details</b-button>
+          </template>
+        </b-table>
+
+        <b-pagination
+          v-model="currentPage"
+          :total-rows="filteredRFIs.length"
+          :per-page="perPage"
+          align="center"
+          class="mt-3"
+        ></b-pagination>
+      </b-card>
+
+      <b-modal v-if="selectedRFI" v-model="showDetailsModal" title="RFI Details">
+        <p><strong>Status:</strong> {{ selectedRFI.status }}</p>
+        <p><strong>Excel Number:</strong> {{ selectedRFI.excel_number }}</p>
+        <p><strong>Object Name:</strong> {{ selectedRFI.object_name.name }}</p>
+        <p><strong>Project Name:</strong> {{ selectedRFI.project_name.name }}</p>
+        <p><strong>Date of Inspection:</strong> {{ selectedRFI.date_of_inspection.date | formatDate }}</p>
+        <p><strong>Time of Inspection:</strong> {{ selectedRFI.date_of_inspection.time }}</p>
+        <p><strong>Date of Creation:</strong> {{ selectedRFI.date_of_create.date | formatDate }}</p>
+        <p><strong>Description:</strong> {{ selectedRFI.description_of_work_russian.full }}</p>
+      </b-modal>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        rfis: [],
+        filter: '',
+        perPage: 10,
+        currentPage: 1,
+        sortBy: '',
+        sortDesc: false,
+        sortDirection: 'asc',
+        selectedRFI: null,
+        index: 1,
+        showDetailsModal: false,
+        statusFilter: '',
+        objectFilter: '',
+        projectFilter: '',
+        descriptionFilter: '',
+        selectedStatus: 'all',
+        projectOptions: [],
+        selectedObject: 'all',
+        selectedProject: 'all',
+        filterDescription: '',
+        filterFromDate: null,
+        filterToDate: null,
+      },
+      computed: {
+
+        uniqueStatuses() {
+            // Generate an array of unique status values from the RFIs data
+            const statuses = this.rfis.map(rfi => rfi.status);
+            return [...new Set(statuses)];
+          },
+          uniqueObjects() {
+            // Generate an array of unique object values from the RFIs data
+            const objects = this.rfis.map(rfi => rfi.object_name.name);
+            return [...new Set(objects)];
+          },
+
+          statusOptions() {
+              const options = [
+                { value: 'all', text: 'Choose All' },
+                ...this.uniqueStatuses.map(status => ({ value: status, text: status })),
+              ];
+              return options;
+            },
+            objectOptions() {
+              const options = [
+                { value: 'all', text: 'Choose All' },
+                ...this.uniqueObjects.map(object => ({ value: object, text: object })),
+              ];
+              return options;
+            },
+
+          filteredRFIs() {
+            return this.rfis.filter(rfi => {
+              // Filter by status
+              if (this.selectedStatus !== 'all' && rfi.status !== this.selectedStatus) {
+                return false;
+              }
+              // Filter by object
+              if (this.selectedObject !== 'all' && rfi.object_name.name !== this.selectedObject) {
+                return false;
+              }
+              // Filter by project
+              if (this.selectedProject !== 'all' && rfi.project_name.name !== this.selectedProject) {
+                return false;
+              }
+              console.log( typeof rfi.date_of_inspection.date);
+              // Filter by description
+              if (this.filterDescription && !rfi.description_of_work_russian.full.toLowerCase().includes(this.filterDescription.toLowerCase())) {
+                return false;
+              }
+              if (this.filterFromDate && rfi.date_of_inspection.date <= this.filterFromDate) {
+                return false;
+              }
+              // Filter by to date
+
+              if (this.filterToDate && rfi.date_of_inspection.date >= this.filterToDate) {
+                return false;
+              }
+              return true;
+            });
+          },
+        fields() {
+          return [
+            'selected',
+            { key: 'excel_number', label: 'Excel Number', sortable: true },
+            { key: 'status', label: 'Status', sortable: true },
+            { key: 'object_name.name', label: 'Object Name', sortable: true },
+            { key: 'project_name.short_name', label: 'Project Name', sortable: true },
+            { key: 'description_of_work_russian.short', label: 'Description', sortable: false },
+            { key: 'actions', label: 'Actions' },
+          ];
+        },
+        filterFields() {
+          return ['excel_number', 'status', 'object_name', 'project_name'];
+        },
+      },
+      created() {
+        axios
+          .get('http://127.0.0.1:8000/api/rfis/?format=json')
+          .then(response => {
+            this.rfis = response.data;
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      },
+      filters: {
+        formatDate(date) {
+          // Реализуйте форматирование даты по вашим требованиям
+          // В этом примере просто меняем порядок элементов в дате
+          return date.split('-').reverse().join('-');
+        }
+      },
+
+      methods: {
+        fetchProjects() {
+            let url = '';
+            if (this.selectedObject === 'all') {
+              url = 'http://localhost:8000/api/projects/';
+            } else {
+              url = `http://localhost:8000/api/projects/?object-name=${this.selectedObject}`;
+            }
+
+            axios.get(url)
+              .then(response => {
+                // Extract the project names from the response data
+                const projects = response.data.map(project => project.project_name.name);
+                console.log(projects);
+                // Update the projectOptions with the extracted names
+                this.projectOptions = [
+                  { value: 'all', text: 'Choose All' },
+                  ...projects.map(project => ({ value: project, text: project })),
+                ];
+              })
+              .catch(error => {
+                // Handle the error in an appropriate way, e.g., show an error message to the user
+                console.error(error);
+              });
+          },
+          formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear().toString();
+            return `${day}-${month}-${year}`;
+          },
+        showDetails(rfi) {
+          this.selectedRFI = rfi;
+          this.showDetailsModal = true;
+        },
+        clearFilter() {
+          this.selectedStatus = 'all';
+          this.selectedObject = 'all';
+          this.selectedProject = 'all';
+          this.filterDescription = '';
+        },
+        clearDateFilters() {
+          this.filterFromDate = null;
+          this.filterToDate = null;
+        },
+        rowClass(item, type) {
+          if (!item || type !=='row') return
+          if (item.status === 'accepted') return 'table-success'
+          if (item.status === 'rejected') return 'table-danger'
+          if (item.status === 'in process') return 'table-info'
+          if (item.status === 'canceled') return 'table-secondary'
+        }
+      },
+    });
+  </script>
+</body>
+</html>

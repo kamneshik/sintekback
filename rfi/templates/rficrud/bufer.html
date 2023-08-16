@@ -1,0 +1,69 @@
+{% extends 'rficrud/base.html' %}
+{% load static %}
+{{ form.media }}
+{% include autocomplete_static %}
+{% block custom_css %}
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Select2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+<!-- Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>{% endblock %}
+
+{% block content %}
+<div id="app">
+    <div v-for="rfi in rfis" :key="rfi.id" class="card mb-3">
+        <div class="card-header d-flex justify-content-between">
+            <h3>{{ rfi.excel_number }}</h3>
+            <button class="btn btn-link" @click="rfi.showDetails = !rfi.showDetails">
+                {{ rfi.showDetails ? 'Hide Details' : 'Show Details' }}
+            </button>
+        </div>
+        <div v-if="rfi.showDetails" class="card-body">
+            <p><strong>Status:</strong> {{ rfi.status }}</p>
+            <p><strong>Object Name:</strong> {{ rfi.object_name }}</p>
+            <p><strong>Project Name:</strong> {{ rfi.project_name }}</p>
+            <p><strong>Date of Inspection:</strong> {{ rfi.date_of_inspection }}</p>
+            <p><strong>Date of Creation:</strong> {{ rfi.date_of_create }}</p>
+            <p><strong>Description:</strong> {{ rfi.description_of_work_russian }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js"></script>
+<script>
+new Vue({
+  el: '#app',
+  data: {
+    rfis: [],
+  },
+  mounted() {
+    console.log('Vue is running');
+    this.getRFIs();
+  },
+  created() {
+    // Call your API here and set the result to rfis.
+    // For example using Axios:
+    axios.get('http://localhost:8000/api/rfis/?format=json')
+      .then(response => {
+        this.rfis = response.data.map(rfi => ({ ...rfi, showDetails: false }));
+      });
+  },
+
+  methods: {
+  getRFIs() {
+    axios.get('http://localhost:8000/api/rfis/?format=json')
+      .then(response => {
+        console.log(response.data);
+        this.rfis = response.data;
+      })
+  }
+}
+});
+</script>
+{% endblock %}

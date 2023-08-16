@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Daily Requests</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f2f2f2;
+		}
+		h1 {
+			text-align: center;
+		}
+		form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 50px;
+		}
+		label {
+			margin-bottom: 10px;
+			font-weight: bold;
+		}
+		input[type="text"], input[type="date"] {
+			padding: 10px;
+			margin-bottom: 20px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			width: 300px;
+		}
+		button {
+			background-color: #4CAF50;
+			color: white;
+			padding: 12px 20px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			margin-bottom: 20px;
+		}
+		button:hover {
+			background-color: #45a049;
+		}
+		#print-button {
+			display: none;
+			margin-top: 20px;
+		}
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			margin-top: 50px;
+		}
+		th, td {
+			text-align: left;
+			padding: 8px;
+			border-bottom: 1px solid #ddd;
+		}
+		th {
+			background-color: #4CAF50;
+			color: white;
+		}
+		tr:hover {
+			background-color: #f5f5f5;
+		}
+	</style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#create-rfi').click(function() {
+                $.getJSON('/get-rfis/', function(data) {
+                    // `data` содержит JSON-ответ от сервера
+                    // Вы можете перебрать список RFIs и отобразить их на своей странице
+                    $.each(data, function(index, rfi) {
+                        // `rfi` - это словарь, который содержит данные RFI
+                        // Вы можете получить доступ к данным, используя ключи в словаре, например, rfi.id, rfi.excel_number, и т.д.
+                        // Используйте jQuery для обновления вашего HTML для отображения данных RFI по желанию
+                        $('#rfi-list').append('<li>RFI ' + rfi.id + ': ' + rfi.excel_number + '</li>');
+                    });
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+	<h1>Daily Requests</h1>
+	<form>
+		<label for="date">Date:</label>
+		<input type="date" id="date" name="date">
+
+		<label for="excel-number">Excel Number:</label>
+		<input type="text" id="excel-number" name="excel-number">
+
+		<label for="rfi-number">RFI Number:</label>
+		<input type="text" id="rfi-number" name="rfi-number">
+
+		<button type="button" id="create-request">Create Daily Request</button>
+		<button type="button" id="create-rfi">Create Daily RFI</button>
+		<button type="button" id="print-rfi" disabled>Print Daily RFI</button>
+	</form>
+	<ul id="rfi-list">
+
+	</ul>
+	<table id="rfi-table" style="display: none;">
+		<thead>
+			<tr>
+				<th>Excel Number</th>
+				<th>RFI Number</th>
+				<th>Date</th>
+				<th>Field 1</th>
+				<th>Field 2</th>
+				<th>Field 3</th>
+				<th>Field 4</th>
+				<th>Field 5</th>
+				<th>Field 6</th>
+			</tr>
+		</thead>
+		<tbody>
+			<!-- Table data will be dynamically added here -->
+		</tbody>
+	</table>
+
+
+
+</body>
+
+
+</html>

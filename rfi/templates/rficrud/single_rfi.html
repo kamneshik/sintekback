@@ -1,0 +1,113 @@
+{% extends 'rficrud/base.html' %}
+
+{% load static %}
+
+
+{% block custom_css %}
+<link rel="stylesheet" href="{% static 'rficrud/css/single_rfi.css' %}">
+{% endblock %}
+
+{% block title %}
+Подробнее о ЗНО
+{% endblock %}
+
+{% block content %}
+<div class="container rfi-detail">
+    <h1 class="mb-4">Детали ЗНО</h1>
+    <div class="card">
+        <div class="card-header {% if rfi.status == 'rejected' %}bg-danger{% elif rfi.status == 'accepted' %}bg-success{% elif rfi.status == 'in process' %}bg-warning{% elif rfi.status == 'canceled' %}bg-secondary{% endif %}">
+            <h2 class="card-title"> {% if rfi.rfi_number_from_akkuyu %} RFI-{{rfi.rfi_number_from_akkuyu}} {% else %} {{ rfi.excel_number }} {% endif %}</h2>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">{{ rfi.get_status_display }}</dd>
+
+                <dt class="col-sm-3">RFI Number</dt>
+                <dd class="col-sm-9">{{ rfi.rfi_number }}</dd>
+
+                <dt class="col-sm-3">Date of Create</dt>
+                <dd class="col-sm-9">{{ rfi.date_of_create|date:"d-m-Y" }}</dd>
+
+                <dt class="col-sm-3">Date of Inspection</dt>
+                <dd class="col-sm-9">{{ rfi.date_of_inspection|date:"d-m-Y H:i" }}</dd>
+
+                <dt class="col-sm-3">Object Name</dt>
+                <dd class="col-sm-9">{{ rfi.object_name }}</dd>
+
+                <dt class="col-sm-3">Project Name</dt>
+                <dd class="col-sm-9">{{ rfi.project_name }}</dd>
+
+                <dt class="col-sm-3">Description of Work (Russian)</dt>
+                <dd class="col-sm-9">{{ rfi.description_of_work_russian }}</dd>
+
+                <dt class="col-sm-3">Quality plan</dt>
+                <dd class="col-sm-9">{{ rfi.project_name.quality_plan }}</dd>
+            </dl>
+
+            <dt class="col-sm-3">Освидетельствование проводили</dt>
+            <dd class="col-sm-9">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Akkyyu Signer</th>
+                            <th>Независимый контроль</th>
+                            <th>Авторский надзор</th>
+                            <th>QC JV Signer</th>
+                            <th>Исполнитель СП</th>
+                            <th>Исполнитель</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ rfi.akkuyu_signer }}</td>
+                            <td>{{ rfi.independent_control }}</td>
+                            <td>{{ rfi.design_supervision_signer }}</td>
+                            <td>{{ rfi.qc_signer }}</td>
+                            <td>{{ rfi.contractor }}</td>
+                            <td>{{ rfi.contractor_sintek }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </dd>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'rficrud:rfi_list' %}" class="btn btn-primary">Вернуться к списку</a>
+            {% if is_inspector %}
+                <button type="button" class="btn btn-primary" id="toggleCommentFormButton">Make Comment</button>
+            {% endif %}
+        </div>
+    </div>
+
+
+  {% if is_inspector %}
+    <div class="comment-form-container my-3" id="commentFormContainer" style="display: none;">
+      <form method="post" action="{% url 'rficrud:add_comment' rfi.slug %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment:</label>
+          <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Comment</button>
+      </form>
+    </div>
+  {% endif %}
+
+    {% if rfi.comments %}
+        <h2>Comments</h2>
+        {% for comment in rfi.comments.all %}
+            <div class="comment-container">
+                <p class="comment-author">{{ comment.inspector.user.username }}</p>
+                <p class="comment-date">{{ comment.created_at|date:"d-m-Y H:i" }}</p>
+                <p class="comment-text">{{ comment.text }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script src="{% static 'rficrud/js/single_rfi_read.js' %}"></script>
+{% endblock %}

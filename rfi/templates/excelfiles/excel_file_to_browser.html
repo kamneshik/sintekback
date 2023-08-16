@@ -1,0 +1,23 @@
+{% extends 'excelfiles/base.html' %}
+{% load static %}
+
+{% block custom_css %}
+<link
+  rel="stylesheet"
+  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  integrity="sha384-pzjw8f+ua7Kw1TIq0v8FqFjcJ6pajs/rfdfs3SO+kD4Ck5BdPtF+to8xMmcke07g"
+  crossorigin="anonymous"
+/>
+<link rel="stylesheet" href="{% static 'excelfiles/css/excel_file_to_browser.css' %}">
+{% endblock %}
+
+{% block table %}
+<input type="file" id="input-excel" />
+
+<div id="excel-data"></div>
+{% endblock %}
+
+{% block custom_js %}
+  <script src="{% static '/excelfiles/js/excel_file_to_browser.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+{% endblock %}

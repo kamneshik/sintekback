@@ -1,0 +1,227 @@
+{% extends 'rficrud/base.html' %}
+{% load static %}
+
+{% include autocomplete_static %}
+{% block custom_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+{{ form.media.css }}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+  .form-section {
+    margin-bottom: 20px;
+  }
+
+  .form-section .form-group {
+    margin-bottom: 10px;
+  }
+
+  .form-section .form-group label {
+    font-weight: bold;
+  }
+
+  .form-section .form-group .form-control {
+    width: 100%;
+  }
+
+  .form-section .form-group .form-check-label {
+    margin-left: 5px;
+  }
+
+  .form-section .form-group.description-group textarea {
+    height: 120px;
+    resize: none;
+  }
+
+  .error-message {
+    color: red;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-12">
+      <h2 class="text-center">Create RFI</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.media.js }}
+        {% if form.errors %}
+        <div class="error-message">
+          {% for field in form %}
+          {% for error in field.errors %}
+          <p>{{ field.label }}: {{ error }}</p>
+          {% endfor %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="form-section">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.object_name.id_for_label }}">{{ form.object_name.label_tag }}</label>
+                {{ form.object_name }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.date_of_inspection.id_for_label }}">{{ form.date_of_inspection.label }}</label>
+                {{ form.date_of_inspection }}
+              </div>
+            </div>
+          </div>
+          <div class="row" id="id_12345">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.project_name.id_for_label }}">{{ form.project_name.label }}</label>
+                {{ form.project_name }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.inspector.id_for_label }}">{{ form.inspector.label }}</label>
+                {{ form.inspector }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+          <div class="form-group">
+    <label for="id_work_type">Тип работ:</label>
+    <select id="id_work_type" name="work_type" class="form-control">
+      <option value="">Выберите тип работ</option>
+      <option value="СМР">СМР</option>
+      <option value="АКЗ">АКЗ</option>
+      <option value="СТР">СТР</option>
+    </select>
+  </div>
+
+  <div id="standard_works_section" style="display: none;">
+    <div class="form-group">
+      <label>Стандартные работы:</label>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="standard_works" value="Армирование">
+        <label class="form-check-label">Армирование</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="standard_works" value="Закладные изделия">
+        <label class="form-check-label">Закладные изделия</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="standard_works" value="Опалубка">
+        <label class="form-check-label">Опалубка</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="standard_works" value="Бетонирование">
+        <label class="form-check-label">Бетонирование</label>
+      </div>
+    </div>
+  </div>
+
+  <div id="construction_element_section" style="display: none;">
+    <div class="form-group">
+      <label for="id_construction_element">Конструктивный элемент:</label>
+      <input type="text" id="id_construction_element" name="construction_element" class="form-control">
+      <small class="form-text text-muted">Например: Балка, Колонна, Стена, Парапет и т.д.</small>
+    </div>
+
+    <div id="elevation_section">
+      <div class="form-group">
+        <label>Отметки:</label>
+        <div class="row">
+          <div class="col-md-4">
+            <label for="id_axes">Оси:</label>
+            <input type="text" id="id_axes" name="axes" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="id_from_elevation">От отметки:</label>
+            <input type="text" id="id_from_elevation" name="from_elevation" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="id_to_elevation">До отметки:</label>
+            <input type="text" id="id_to_elevation" name="to_elevation" class="form-control">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="additional_elevation_section"></div>
+
+    <div class="form-group">
+      <button type="button" id="add_elevation_row" class="btn btn-primary">Добавить ряд отметок</button>
+    </div>
+
+    <div class="form-group">
+      <button type="button" id="add_construction_element_section" class="btn btn-primary">Добавить блок "Конструктивный элемент с отметками и осями"</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <button type="button" id="add_row" class="btn btn-primary">Добавить ряд для отметок</button>
+  </div>
+
+  <div class="form-group">
+    <button type="button" id="add_executive_scheme" class="btn btn-primary">Исполнительная схема</button>
+  </div>
+
+        <div class="form-section">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.akkuyu_signer.id_for_label }}">{{ form.akkuyu_signer.label }}</label>
+                {{ form.akkuyu_signer }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.independent_control.id_for_label }}">{{ form.independent_control.label }}</label>
+                {{ form.independent_control }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.qc_signer.id_for_label }}">{{ form.qc_signer.label }}</label>
+                {{ form.qc_signer }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label
+                  for="{{ form.design_supervision_signer.id_for_label }}">{{ form.design_supervision_signer.label }}</label>
+                {{ form.design_supervision_signer }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="{{ form.contractor.id_for_label }}">{{ form.contractor.label }}</label>
+                {{ form.contractor }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+{{ block.super }}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+<script src="{% static 'rficrud/js/rfi_create.js' %}"></script>
+{% endblock %}

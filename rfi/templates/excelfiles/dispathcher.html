@@ -1,0 +1,39 @@
+{% extends 'excelfiles/base.html' %}
+{% load static %}
+
+{% block title %}Диспечерская{% endblock %}
+
+{% block custom_css %}
+    <link rel="stylesheet" href="{% static 'excelfiles/css/messages.css' %}">
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Диспечерская</h2>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+        <a href="{% url 'excelfiles:create_request' %}" class="btn btn-primary">Create daily request</a>
+        <a href="{% url 'excelfiles:fill_rfi_numbers' %}" class="btn btn-primary">Fill numbers from excel file</a>
+        <a href="{% url 'excelfiles:from_django_to_excel' %}" class="btn btn-primary">Create excel file to fill excel book</a>
+        <a href="{% url 'excelfiles:create_daily_rfis' %}" class="btn btn-primary">Create daily RFIs and Checklists</a>
+        <a href="{% url 'excelfiles:success' %}" class="btn btn-primary">Print daily RFIs and Checklists</a>
+        <a href="{% url 'excelfiles:excel_file_to_browser' %}" class="btn btn-primary">Show excel file</a>
+    </div>
+    <form action="{% url 'excelfiles:get_info' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block message %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

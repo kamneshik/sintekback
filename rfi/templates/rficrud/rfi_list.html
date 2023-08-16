@@ -1,0 +1,214 @@
+{% extends 'rficrud/base.html' %}
+
+{% load static %}
+{% load rfi_templatetags %}
+
+{% block custom_css %}
+<link rel="stylesheet" href="{% static 'rficrud/css/rfi_list.css' %}">
+{% endblock %}
+
+
+{% block title %}
+Ведомость
+{% endblock %}
+
+{% block table %}
+<div class="row" style="padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0;">
+<div class="container table-container">
+
+    <form method="POST" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+    </form>
+
+    <button id="toggleFormButton" class="btn btn-secondary">Показать/Скрыть фильтры</button>
+    <div class="form-container hidden" id="filterForm">
+        <form method="GET">
+            {{ filter_form.as_p }}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary mt-4">Фильтр</button>
+                {% if user.is_authenticated %}
+                    <button type="submit" class="btn btn-primary mt-4" name="inspector_filter" value="{{ user.username }}">Фильтр по инспектору ({{ user.first_name }} {{ user.last_name  }})</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+{% if rfis_page.paginator.num_pages > 1 %}
+<div class="d-flex justify-content-center my-4">
+    <ul class="pagination">
+        {% with max_visible_pages=10 %}
+        {% with start_page=rfis_page.number|add:-3|default:1 %}
+        {% with end_page=start_page|add:max_visible_pages|default:rfis_page.paginator.num_pages %}
+
+        {% if rfis_page.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">First</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ rfis_page.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&lsaquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% for i in rfis_page.paginator.page_range %}
+            {% if i >= start_page and i <= end_page %}
+                {% if i == rfis_page.number %}
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="?page={{ i }}">{{ i }} <span class="sr-only">(current)</span></a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if rfis_page.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ rfis_page.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&rsaquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ rfis_page.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Last</span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+    </ul>
+</div>
+{% endif %}
+
+
+
+
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Excel Number</th>
+                <th>RFI Number</th>
+                <th class="status-column"> Status </th>
+                <th>Date of Create</th>
+                <th>Date of Inspection</th>
+                <th>Object Name</th>
+                <th>Project Name</th>
+                <th>Description of Work (Russian)</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for rfi in rfis_page %}
+
+            <tr class="{% if rfi.status == 'rejected' %}table-danger{% elif rfi.status == 'accepted' %}table-success{% elif rfi.status == 'in process' %}table-warning{% elif rfi.status == 'canceled' %}table-secondary{% endif %}">
+
+                {% if rfi.slug %}
+                    <td><a href="{% url 'rficrud:single_rfi_read' rfi.slug %}">{{ rfi.excel_number }}</a></td>
+                {% else %}
+                    <td>{{ rfi.excel_number }}</td>
+                {% endif %}
+                <td>{{ rfi.rfi_number }}</td>
+               <!-- <td class="status-column"> {% if rfi.status != 'rejected'%} {{ rfi.get_status_display }} {% else %} {{ rfi.object_name }} {% endif %}</td> -->
+
+                {% if rfi.status == "rejected" %}
+                    <td colspan="3" class="text-center"><p> Причина отказа.</p>Причина отказа не указанна</td>
+                {% else %}
+                <td class="status-column">
+                        {{ rfi.get_status_display }}
+                </td>
+
+                <td>{{ rfi.date_of_create|date:"d.m.Y" }}</td>
+                <td>{{ rfi.date_of_inspection|date:"d.m.Y" }}</td>
+                {% endif %}
+
+                <td>{{ rfi.object_name }}</td>
+                <td><strong>{{ rfi.project_name.short }}</strong></td>
+                <td>{{ rfi.short_description }}</td>
+
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">No RFI records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+        {% if rfis_page.paginator.num_pages > 1 %}
+            <div class="d-flex justify-content-center my-4">
+                <ul class="pagination">
+                    {% with max_visible_pages=10 %}
+                    {% with start_page=rfis_page.number|add:-3|default:1 %}
+                    {% with end_page=start_page|add:max_visible_pages|default:rfis_page.paginator.num_pages %}
+
+                    {% if rfis_page.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="First">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">First</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ rfis_page.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&lsaquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for i in rfis_page.paginator.page_range %}
+                        {% if i >= start_page and i <= end_page %}
+                            {% if i == rfis_page.number %}
+                                <li class="page-item active" aria-current="page">
+                                    <a class="page-link" href="?page={{ i }}">{{ i }} <span class="sr-only">(current)</span></a>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if rfis_page.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ rfis_page.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&rsaquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ rfis_page.paginator.num_pages }}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Last</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+                </ul>
+            </div>
+            {% endif %}
+
+
+</div>
+<script src="{% static 'rficrud/js/rfi_list.js' %}"></script>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+
+{% endblock %}

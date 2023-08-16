@@ -1,0 +1,37 @@
+.messages {
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+}
+
+.messages li {
+  margin-bottom: 10px;
+  list-style-type: none;
+}
+
+.messages li.error {
+  color: red;
+}
+
+.messages li.success {
+  color: green;
+}
+
+.debug {
+  background-color: #F8D7DA;
+  color: #721C24;
+  border: 1px solid #F5C6CB;
+}
+
+.info {
+  background-color: #D1ECF1;
+  color: #0C5460;
+  border: 1px solid #BCE8F1;
+}
+
+.warning {
+  background-color: #FFF3CD;
+  color: #856404;
+  border: 1px solid #FFD966;
+}

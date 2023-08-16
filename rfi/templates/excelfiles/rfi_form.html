@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="POST">
+    {% csrf_token %}
+    <div>
+        <label for="object_name">Object name:</label>
+        <select id="object_name" name="object_name">
+            {% for construction in constructions %}
+                <option value="{{ construction.id }}">{{ construction.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="excel_number">Excel number:</label>
+        <input type="text" id="excel_number" name="excel_number">
+    </div>
+    <div>
+        <label for="date_of_create">Date of create:</label>
+        <input type="date" id="date_of_create" name="date_of_create">
+    </div>
+    <div>
+        <label for="date_of_inspection">Date of inspection:</label>
+        <input type="date" id="date_of_inspection" name="date_of_inspection">
+    </div>
+    <div>
+        <label for="project_name">Project name:</label>
+        <select id="project_name" name="project_name">
+            {% for project in projects %}
+                <option value="{{ project.id }}">{{ project.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="type_of_work">Type of work:</label>
+        <select id="type_of_work" name="type_of_work">
+            {% for work_type in work_types %}
+                <option value="{{ work_type }}">{{ work_type }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="description_of_work_russian">Description of work (Russian):</label>
+        <textarea id="description_of_work_russian" name="description_of_work_russian"></textarea>
+    </div>
+    <div>
+        <label for="description_of_work_english">Description of work (English):</label>
+        <textarea id="description_of_work_english" name="description_of_work_english"></textarea>
+    </div>
+    <div>
+        <label for="signer_1">Signer 1:</label>
+        <select id="signer_1" name="signer_1">
+            {% for signer in signers %}
+                <option value="{{ signer.id }}">{{ signer.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="quality_plan">Quality plan:</label>
+        <input type="file" id="quality_plan" name="quality_plan">
+    </div>
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock %}
