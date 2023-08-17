@@ -23,7 +23,7 @@ class Construction(models.Model):
         db_table = 'construction_table'
         verbose_name = 'Объект'
         verbose_name_plural = 'Объекты'
-
+        ordering = ['object_name']
 
 class QualityPlanNumber(models.Model):
     """Тут добавить информацию о плане качества"""
@@ -110,6 +110,7 @@ class Project(models.Model):
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
         ordering = ['object_name', 'code' ,'project_name']
+
 
 class Akkuyu(models.Model):
     """Представитель заказчика для подписания ЗНО"""
@@ -380,6 +381,7 @@ class RFI(models.Model):
         db_table = 'rfi_table'
         verbose_name = 'ЗНО'
         verbose_name_plural = 'Список ЗНО'
+
 
 
 def slug_create(rfi):
