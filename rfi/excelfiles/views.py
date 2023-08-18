@@ -269,6 +269,7 @@ def create_request_list(request):
     """Функция, которая создаёт заявку для получения номеров ЗНО"""
 
     rfi_list = RFI.objects.filter(date_of_create__date=today_date)
+    rfi_list = rfi_list.filter(rfi_number_from_akkuyu=None)
     #print(rfi_list)
 
     rfi_list_dinara = rfi_list.filter(object_name__object_name__regex=r"00\w+")
@@ -277,7 +278,6 @@ def create_request_list(request):
     #print(rfi_list_tatiana)
     excel_template_path = local_path_to_templates + 'request_template.xlsx'
     file_path = os.path.abspath(excel_template_path)
-
     try:
         print('1220')
         if rfi_list_dinara.exists():

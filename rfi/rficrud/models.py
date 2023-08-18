@@ -25,6 +25,7 @@ class Construction(models.Model):
         verbose_name_plural = 'Объекты'
         ordering = ['object_name']
 
+
 class QualityPlanNumber(models.Model):
     """Тут добавить информацию о плане качества"""
     id = models.AutoField(primary_key=True)
